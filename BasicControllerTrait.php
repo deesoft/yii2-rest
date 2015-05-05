@@ -2,7 +2,9 @@
 
 namespace dee\rest;
 
+use Yii;
 use yii\data\ActiveDataProvider;
+use yii\web\NotFoundHttpException;
 
 /**
  * Description of BasicResourceTrait
@@ -16,6 +18,11 @@ trait BasicControllerTrait
      * @var string the model class name. This property must be set.
      */
     public $searchModelClass;
+
+    /**
+     * @var string
+     */
+    public $expandParam;
 
     /**
      * Lists all models.
@@ -46,6 +53,15 @@ trait BasicControllerTrait
     public function actionView($id)
     {
         $model = $this->findModel($id);
+        if ($this->expandParam && ($attr = Yii::$app->request->getQueryParam($this->expandParam))!==null) {
+            $definition = array_merge($model->fields(), $model->extraFields());
+            if(isset($definition[$attr])){
+                return is_string($definition[$attr]) ? $model->{$definition[$attr]} : call_user_func($definition[$attr], $model, $attr);
+            }elseif (in_array($attr, $definition)) {
+                return $model->$attr;
+            }
+            throw new NotFoundHttpException("Object not found: $id/$attr");
+        }
         return $model;
     }
 

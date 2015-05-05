@@ -16,6 +16,10 @@ use yii\web\NotFoundHttpException;
 class Controller extends \yii\rest\Controller
 {
     /**
+     * @var string|array the configuration for creating the serializer that formats the response data.
+     */
+    public $serializer = 'dee\rest\Serializer';
+    /**
      * @var string the model class name. This property must be set.
      */
     public $modelClass;
