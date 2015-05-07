@@ -8,7 +8,7 @@ use yii\web\Response;
 use yii\helpers\ArrayHelper;
 
 /**
- * ResourceAction
+ * RestAction
  *
  * @author Misbahul D Munir <misbahuldmunir@gmail.com>
  * @since 1.0
@@ -44,7 +44,7 @@ class RestAction extends \yii\base\Action
     public $serializer = 'dee\rest\Serializer';
 
     /**
-     * @var array 
+     * @var array
      */
     public $contentNegotiator = [];
 
@@ -104,7 +104,13 @@ class RestAction extends \yii\base\Action
     {
         $controller = $this->controller;
         $method = Yii::$app->request->getMethod();
-        $params = Yii::$app->request->getQueryParams();
+
+        $actionId = $this->getUniqueId();
+        if(isset(UrlRule::$routeParams[$actionId])){
+            $params = UrlRule::$routeParams[$actionId];
+        }  else {
+            $params = Yii::$app->request->getQueryParams();
+        }
         foreach ($this->_rules as $rule) {
             if (empty($rule['verbs']) || in_array($method, $rule['verbs'])) {
                 $match = true;
