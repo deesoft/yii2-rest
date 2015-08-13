@@ -41,12 +41,18 @@ class AdvanceController extends Controller
      */
     public function actionIndex()
     {
-        /* @var $modelClass ActiveRecord */
-        $modelClass = $this->modelClass;
-        $query = $modelClass::find();
-        $dataProvider = new ActiveDataProvider([
-            'query' => $query,
-        ]);
+        if ($this->modelSearchClass !== null) {
+            /* @var $modelClass ActiveRecord */
+            $modelSearch = new $this->modelSearchClass;
+            $dataProvider = $modelSearch->search(Yii::$app->getRequest()->getQueryParams());
+        } else {
+            /* @var $modelClass ActiveRecord */
+            $modelClass = $this->modelClass;
+            $query = $modelClass::find();
+            $dataProvider = new ActiveDataProvider([
+                'query' => $query,
+            ]);
+        }
 
         $this->fire('query', [$dataProvider]);
         return $dataProvider;

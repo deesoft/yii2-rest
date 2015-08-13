@@ -23,6 +23,8 @@ class Controller extends \yii\web\Controller
      */
     public $modelClass;
 
+    public $modelSearchClass;
+
     /**
      * @inheritdoc
      */
