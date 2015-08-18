@@ -2,6 +2,7 @@
 
 namespace dee\rest;
 
+use Yii;
 /**
  * Description of Bootstrap
  *
@@ -13,7 +14,7 @@ class Bootstrap
 
     public static function apply()
     {
-        \Yii::$classMap['yii\base\ArrayableTrait'] = __DIR__ . '/ArrayableTrait.php';
-        \Yii::$classMap['yii\helpers\ArrayHelper'] = __DIR__ . '/ArrayHelper.php';
+        Yii::$classMap['yii\base\ArrayableTrait'] = __DIR__ . '/ArrayableTrait.php';
+        Yii::$classMap['yii\helpers\ArrayHelper'] = __DIR__ . '/ArrayHelper.php';
     }
 }
