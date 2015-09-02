@@ -49,6 +49,18 @@ class Controller extends \yii\web\Controller
     /**
      * @inheritdoc
      */
+    public function actions()
+    {
+        return[
+            'options' => [
+                'class' => 'yii\rest\OptionsAction',
+            ],
+        ];
+    }
+    
+    /**
+     * @inheritdoc
+     */
     public function behaviors()
     {
         return [

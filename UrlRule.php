@@ -3,9 +3,6 @@
 namespace dee\rest;
 
 use Yii;
-use yii\base\InvalidConfigException;
-use yii\helpers\Inflector;
-use yii\web\CompositeUrlRule;
 
 /**
  * Description of UrlRule
@@ -37,24 +34,59 @@ class UrlRule extends \yii\rest\UrlRule
     /**
      * @inheritdoc
      */
-    public function init()
+    protected function createRules()
     {
-        if (empty($this->controller)) {
-            throw new InvalidConfigException('"controller" must be set.');
-        }
-
-        $controllers = [];
-        $prefixRoute = empty($this->prefixRoute) ? '' : trim($this->prefixRoute, '/') . '/';
-        foreach ((array) $this->controller as $urlName => $controller) {
-            if (is_int($urlName)) {
-                $urlName = $this->pluralize ? Inflector::pluralize($controller) : $controller;
+        $only = array_flip($this->only);
+        $except = array_flip($this->except);
+        $patterns = $this->extraPatterns + $this->patterns;
+        $prefixRoute = trim($this->prefixRoute, '/') . '/';
+        $rules = [];
+        foreach ($this->controller as $urlName => $controller) {
+            $controller = $prefixRoute . trim($controller, '/');
+            $prefix = trim($this->prefix . '/' . $urlName, '/');
+            foreach ($patterns as $pattern => $action) {
+                if (!isset($except[$action]) && (empty($only) || isset($only[$action]))) {
+                    $rules[] = $this->createRule($pattern, $prefix, $controller . '/' . $action);
+                }
             }
-            $controllers[$urlName] = $prefixRoute . $controller;
         }
-        $this->controller = $controllers;
 
-        $this->prefix = trim($this->prefix, '/');
+        return $rules;
+    }
 
-        CompositeUrlRule::init();
+    /**
+     * @inheritdoc
+     */
+    public function parseRequest($manager, $request)
+    {
+        foreach ($this->rules as $rule) {
+            /* @var $rule \yii\web\UrlRule */
+            if (($result = $rule->parseRequest($manager, $request)) !== false) {
+                Yii::trace("Request parsed with URL rule: {$rule->name}", __METHOD__);
+
+                return $result;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function createUrl($manager, $route, $params)
+    {
+        foreach ($this->controller as $urlName => $controller) {
+            if (strpos($route, $controller) !== false) {
+                foreach ($this->rules[$urlName] as $rule) {
+                    /* @var $rule \yii\web\UrlRule */
+                    if (($url = $rule->createUrl($manager, $route, $params)) !== false) {
+                        return $url;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 }
