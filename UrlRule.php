@@ -76,14 +76,10 @@ class UrlRule extends \yii\rest\UrlRule
      */
     public function createUrl($manager, $route, $params)
     {
-        foreach ($this->controller as $urlName => $controller) {
-            if (strpos($route, $controller) !== false) {
-                foreach ($this->rules[$urlName] as $rule) {
-                    /* @var $rule \yii\web\UrlRule */
-                    if (($url = $rule->createUrl($manager, $route, $params)) !== false) {
-                        return $url;
-                    }
-                }
+        foreach ($this->rules as $rule) {
+            /* @var $rule \yii\web\UrlRule */
+            if (($url = $rule->createUrl($manager, $route, $params)) !== false) {
+                return $url;
             }
         }
 
